@@ -1,0 +1,2 @@
+# Travel-Adviser
+Travel Adviser project utilizing GPT4All, LangChain and Neo4j for intelligent vacation planning, managing and analyzing travel data to provide personalized recommendations and itineraries.
