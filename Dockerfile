@@ -8,14 +8,14 @@ ENV PYTHONUNBUFFERED=1
 ARG FOLDER=/travel_adviser
 
 # Create a folder
-RUN mkdir -p $FOLDER
+WORKDIR $FOLDER
 
 # Install packages
-COPY ./requirements.txt $FOLDER/requirements.txt
-RUN pip install -r $FOLDER/requirements.txt
+COPY ./requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the project files into the container
-COPY ./src $FOLDER/src
+COPY ./src ./src
 
 # Expose any necessary ports
 EXPOSE 8000

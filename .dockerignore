@@ -1,4 +1,29 @@
-node_modules
-.git/
-.idea/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
 venv/
+.venv/
+
+# Version control directories
+.git/
+.gitignore
+
+# Node modules and build directories
+node_modules/
+dist/
+build/
+
+# Local environment files
+.env
+*.local
+
+# System files
+.DS_Store
+
+# Ignore Dockerfile and other large files if they are not needed in the build context
+Dockerfile
+docker-compose.yml
+.gguf

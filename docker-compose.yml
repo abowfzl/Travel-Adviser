@@ -11,4 +11,6 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/travel_adviser
+      - ./.cache/Meta-Llama-3-8B-Instruct.Q4_0.gguf:/root/.cache/gpt4all/Meta-Llama-3-8B-Instruct.Q4_0.gguf:rw
+      - ./.cache/nomic-embed-text-v1.5.f16.gguf:/root/.cache/gpt4all/nomic-embed-text-v1.5.f16.gguf:rw
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
