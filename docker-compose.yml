@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  backend:
+    build:
+      context: .
+    hostname: api
+    restart: always
+    container_name: travel_adviser_api
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - .:/travel_adviser
