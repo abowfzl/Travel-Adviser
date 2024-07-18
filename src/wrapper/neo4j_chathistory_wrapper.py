@@ -24,7 +24,7 @@ class Neo4jChatHistoryDatabase:
             text = message[1]
             keyword = message[0]
 
-            if keyword is 'ai':
+            if keyword == 'ai':
                 new_messages.append(AIMessage(content=text))
             else:
                 new_messages.append(HumanMessage(content=text))

@@ -14,6 +14,7 @@ class BaseLLM(ABC):
         self,
             question,
             session_id,
+            similars,
             prompt
     ) -> List[Any]:
         """Comment"""

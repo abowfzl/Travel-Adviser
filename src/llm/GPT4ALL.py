@@ -47,7 +47,7 @@ class Gpt4AllChat(BaseLLM):
             temperature: float = 0.0,
     ) -> None:
         self.handler = CustomAsyncCallbackHandler(websocket)
-        self.model = GPT4All(model="E:/PycharmProjects/Travel_Adviser/src/llm_model/Meta-Llama-3-8B-Instruct.Q4_0.gguf",
+        self.model = GPT4All(model="Meta-Llama-3-8B-Instruct.Q4_0.gguf",
                              callbacks=[self.handler],
                              streaming=True)
         self.model_name = model_name
@@ -58,6 +58,7 @@ class Gpt4AllChat(BaseLLM):
             self,
             question: str,
             session_id: str,
+            similars,
             prompt: ChatPromptTemplate
     ) -> [str]:
         chain = prompt | self.model | StrOutputParser()
@@ -73,6 +74,7 @@ class Gpt4AllChat(BaseLLM):
         #     {
         #         # "context": current_weather,
         #         "question": question,
+        #         "similars": similars,
         #
         #     },
         #     config={

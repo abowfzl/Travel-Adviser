@@ -53,6 +53,9 @@ class ResultGenerator(BaseComponent):
 
         messages = [
             ("system", "شما یک دستیار سفر آنلاین هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. شما باید مودب، مفید و آگاه باشید."),
+            ("system", system),
+            ("user", "سلام! من به کمک در برنامه‌ریزی سفر نیاز دارم."),
+            ("user", "می‌خواهم به یک مقصد گردشگری خوب برای تعطیلات بروم."),
             ("system", f"با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
             ("user", f"سوال: {question}")
         ]
@@ -70,11 +73,14 @@ class ResultGenerator(BaseComponent):
 
         messages = [
             ("system", "شما یک دستیار سفر آنلاین هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. شما باید مودب، مفید و آگاه باشید."),
-            ("system", f"با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
-            ("user", f"سوال: {question}")
+            ("system", system),
+            ("user", "سلام! من به کمک در برنامه‌ریزی سفر نیاز دارم."),
+            ("user", "می‌خواهم به یک مقصد گردشگری خوب برای تعطیلات بروم."),
+            ("system", "با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
+            ("user", "سوال: {question}")
         ]
         prompt = ChatPromptTemplate.from_messages(messages)
 
-        output = await self.llm.generate_streaming(question, session_id, prompt)
+        output = await self.llm.generate_streaming(question, session_id, similars, prompt)
 
         return "".join(output)
