@@ -82,7 +82,7 @@ class Gpt4AllChat(BaseLLM):
         #     }
         # )
 
-        await chain.ainvoke({"question": question})
+        await chain.ainvoke({"question": question, "similars": similars})
 
         results = self.handler.copy_token()
         self.handler.clear_tokens()
