@@ -94,7 +94,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages = [('human', question)]
 
                     await sendDebugMessage("received question: " + question)
-                    similars = None
+                    similars = []
                     try:
                         similars = await similarity.run_async(question=question, session_id=session_id)
                     except Exception as e:
@@ -151,6 +151,19 @@ async def readiness_check():
 async def generate_session_id():
     session = Session()
     return {'session_id': session.generate_session_id()}
+
+
+@app.post("/similars")
+async def get_similars(question: str, session_id: str):
+    embedder = Gpt4AllEmbedding()
+
+    similarity = Neo4jSimilarity(
+        database=neo4j_connection,
+        embedder=embedder
+    )
+    similars = await similarity.run_async(question=question, session_id=session_id)
+
+    return {'similars': similars}
 
 
 @app.get("/chat_history")
