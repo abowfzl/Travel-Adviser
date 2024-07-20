@@ -47,6 +47,7 @@ class Gpt4AllChat(BaseLLM):
             temperature: float = 0.0,
     ) -> None:
         self.handler = CustomAsyncCallbackHandler(websocket)
+        self.websocket = websocket
         self.model = GPT4All(model="Meta-Llama-3-8B-Instruct.Q4_0.gguf",
                              callbacks=[self.handler],
                              streaming=True)
@@ -61,6 +62,9 @@ class Gpt4AllChat(BaseLLM):
             similars,
             prompt: ChatPromptTemplate
     ) -> [str]:
+
+        await self.websocket.send_json({"type": "debug", "detail": f"created prompt messages: {prompt.messages}"})
+
         chain = prompt | self.model | StrOutputParser()
 
         # chat_with_message_history = RunnableWithMessageHistory(
@@ -81,6 +85,7 @@ class Gpt4AllChat(BaseLLM):
         #         "configurable": {"session_id": session_id}
         #     }
         # )
+        await self.websocket.send_json({"type": "debug", "detail": "chain created and model is going to generate"})
 
         await chain.ainvoke({"question": question, "similars": similars})
 

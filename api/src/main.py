@@ -48,14 +48,14 @@ app.add_middleware(
 
 @app.websocket("/text2text")
 async def websocket_endpoint(websocket: WebSocket):
-    async def sendDebugMessage(message):
+    async def send_debug_message(message):
         await websocket.send_json({"type": "debug", "detail": message})
 
-    async def sendErrorMessage(message):
+    async def send_error_message(message):
         await websocket.send_json({"type": "error", "detail": message})
 
     await websocket.accept()
-    await sendDebugMessage("connected")
+    await send_debug_message("connected")
     try:
         while True:
             data = await websocket.receive_json()
@@ -93,30 +93,33 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     messages = [('human', question)]
 
-                    await sendDebugMessage("received question: " + question)
+                    await send_debug_message("received question: " + question)
                     similars = []
                     try:
                         similars = await similarity.run_async(question=question, session_id=session_id)
                     except Exception as e:
-                        await sendErrorMessage(str(e))
+                        await send_error_message(str(e))
                         continue
                     if similars is None:
-                        await sendErrorMessage("Could not search for similars")
+                        await send_error_message("Could not search for similars")
                         continue
                     await websocket.send_json(
                         {
                             "type": "start",
+                            "similars": similars
                         }
                     )
                     output = await result_generator.run_async(
                         question=question,
                         session_id=session_id,
-                        similars=similars[:HARD_LIMIT_CONTEXT_RECORDS]
+                        similars=similars
                     )
 
                     messages.append(('ai', output))
 
                     await chat_history_db.add_messages(messages)
+
+                    await send_debug_message(f"messages added: {messages}")
 
                     await websocket.send_json(
                         {
@@ -126,8 +129,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         }
                     )
                 except Exception as e:
-                    await sendErrorMessage(str(e))
-                await sendDebugMessage("output done")
+                    await send_error_message(str(e))
+                await send_debug_message("output done")
     except WebSocketDisconnect:
         print("disconnected")
 
