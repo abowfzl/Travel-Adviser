@@ -180,7 +180,7 @@ async def get_chat_history(session_id: str):
         password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
         session_id=session_id)
 
-    messages = chat_history_db.get_messages()
+    messages = await chat_history_db.get_messages()
 
     return {"messages": messages}
 
