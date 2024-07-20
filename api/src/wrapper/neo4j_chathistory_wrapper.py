@@ -29,7 +29,11 @@ class Neo4jChatHistoryDatabase:
             else:
                 new_messages.append(HumanMessage(content=text))
 
-        await self._driver.aadd_messages(new_messages)
+        for message in new_messages:
+            self._driver.add_message(message)
 
-    async def get_messages(self):
-        await self._driver.aget_messages()
+    def get_messages(self):
+        return self._driver.messages
+
+    def clear_messages(self):
+        return self._driver.clear()

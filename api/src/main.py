@@ -180,9 +180,25 @@ async def get_chat_history(session_id: str):
         password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
         session_id=session_id)
 
-    messages = await chat_history_db.get_messages()
+    messages = chat_history_db.get_messages()
 
     return {"messages": messages}
+
+
+@app.delete("/chat_history")
+async def clear_chat_history(session_id: str):
+    if session_id is None:
+        raise HTTPException(status_code=401, detail="not authorized!")
+
+    chat_history_db = Neo4jChatHistoryDatabase(
+        host="neo4j+s://43c248ae.databases.neo4j.io",
+        user="neo4j",
+        password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
+        session_id=session_id)
+
+    chat_history_db.clear_messages()
+
+    return {"success": True}
 
 
 if __name__ == "__main__":
