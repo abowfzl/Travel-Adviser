@@ -136,3 +136,7 @@ class Neo4jDatabase:
         retriever = VectorRetriever(self._driver, "attractionEmbed")
         result = retriever.search(query_vector=question_embedding, top_k=7)
         return result
+
+    def __del__(self) -> None:
+        if self._driver:
+            self._driver.close()
