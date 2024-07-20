@@ -11,8 +11,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./api/.cache/Meta-Llama-3-8B-Instruct.Q4_0.gguf:/root/.cache/gpt4all/Meta-Llama-3-8B-Instruct.Q4_0.gguf:rw
-      - ./api/.cache/nomic-embed-text-v1.5.f16.gguf:/root/.cache/gpt4all/nomic-embed-text-v1.5.f16.gguf:rw
+      - ./.cache:/root/.cache/gpt4all
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
   # frontend:
   #   build:
