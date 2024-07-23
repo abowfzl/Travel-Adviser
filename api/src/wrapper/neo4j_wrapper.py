@@ -48,7 +48,7 @@ class Neo4jDatabase:
             user: str,
             password: str,
             database: str,
-            read_only: bool,
+            read_only: bool = True,
     ) -> None:
         """Initialize a neo4j database"""
         self._driver = GraphDatabase.driver(host, auth=(user, password))

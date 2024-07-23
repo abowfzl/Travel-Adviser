@@ -37,7 +37,7 @@ class Neo4jSimilarity(BaseComponent):
                  'city_name': data['city_name'],
                  'name': data['name'],
                  'title': data['title'],
-                 'text': summarize_text(data['text']),
+                 'text': summarize_text(data['text']) if 'text' in data else "",
             })
 
         return contents

@@ -1,9 +1,10 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
-
+from sklearn.pipeline import make_pipeline
 
 training_data = [
     ("من می‌خواهم به شیراز بروم. چه جاهایی را پیشنهاد می‌دهید؟", "attraction_query"),
+    ("جاذبه‌های گردشگری شهر اصفهان", "attraction_query"),
     ("آب و هوای تهران چگونه است؟", "weather_query"),
     ("رستوران‌های خوب در اصفهان کجا هستند؟", "attraction_query"),
     ("امروز چندمه؟", "date_query"),
@@ -37,23 +38,34 @@ training_data = [
     ("برای آخر هفته چه برنامه‌ای پیشنهاد می‌دهید؟", "plan_trip"),
     ("چگونه می‌توانم یک برنامه سفر برای تعطیلات داشته باشم؟", "plan_trip"),
     ("بهترین مکان‌ها برای دیدن در دو روز چیست؟", "plan_trip"),
-    ("برای یک هفته در تهران چه برنامه‌ای دارید؟", "plan_trip")
+    ("برای یک هفته در تهران چه برنامه‌ای دارید؟", "plan_trip"),
+    ("سلام", "greeting"),
+    ("خداحافظ", "farewell"),
+    ("متشکرم", "thanks"),
+    ("مرسی", "thanks"),
+    ("ببخشید", "apology"),
+    ("کمک", "help"),
+    ("لطفا", "request"),
+    ("آیا می‌توانید کمک کنید؟", "help_request")
 ]
 
 training_texts, training_labels = zip(*training_data)
 
-vectorizer = CountVectorizer()
-X_train = vectorizer.fit_transform(training_texts)
+pipeline = make_pipeline(CountVectorizer(), LogisticRegression())
 
-classifier = LogisticRegression()
-classifier.fit(X_train, training_labels)
+pipeline.fit(training_texts, training_labels)
 
 attraction_keywords = ["جاهای دیدنی", "جاذبه‌ها", "جاذبه", "مکان‌های دیدنی", "رستوران", "بازار", "موزه", "هتل", "پارک", "باغ", "مراکز خرید"]
 
 
 def is_attraction_query(user_input):
-    X_input = vectorizer.transform([user_input])
-    intent = classifier.predict(X_input)[0]
+    proba = pipeline.predict_proba([user_input])
+    intent = pipeline.predict([user_input])[0]
+
+    threshold = 0.6
+
+    if max(proba[0]) < threshold:
+        return False
 
     if intent == "attraction_query":
         return True
