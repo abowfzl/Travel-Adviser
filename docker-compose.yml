@@ -1,5 +1,15 @@
 version: "3.7"
 services:
+  downloader:
+    image: alpine:latest
+    container_name: downloader
+    volumes:
+      - data:/data
+      - ./download_files.sh:/download_files.sh
+    entrypoint: /download_files.sh
+    restart: "no"
+    command: [ "/bin/sh", "-c", "/download_files.sh && exit 0" ]
+
   backend:
     build:
       context: ./api
@@ -13,6 +23,8 @@ services:
     volumes:
       - ./.cache:/root/.cache/gpt4all
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - downloader
   # frontend:
   #   build:
   #     context: ./ui
