@@ -21,3 +21,18 @@ services:
   #   container_name: ui
   #   ports:
   #     - 4173:4173
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  networks:
+    app-network:
+      driver: bridge
