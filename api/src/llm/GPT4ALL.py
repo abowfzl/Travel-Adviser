@@ -1,9 +1,11 @@
 import os
 
 from langchain.schema import StrOutputParser
+
 from langchain_community.chat_message_histories import Neo4jChatMessageHistory
 from langchain_community.graphs import Neo4jGraph
 from langchain_community.llms import GPT4All
+
 from langchain_core.callbacks import AsyncCallbackHandler
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -19,7 +21,7 @@ graph = Neo4jGraph(
 )
 
 
-def get_memory(session_id):
+def get_session_history(session_id):
     return Neo4jChatMessageHistory(session_id=session_id, graph=graph)
 
 
@@ -89,7 +91,26 @@ class Gpt4AllChat(BaseLLM):
         # )
         await self.websocket.send_json({"type": "debug", "detail": "chain created and model is going to generate"})
 
-        await chain.ainvoke({"question": question, "similars": similars})
+        chat_with_message_history = RunnableWithMessageHistory(
+            chain,
+            get_session_history=get_session_history,
+            input_messages_key="question",
+            history_messages_key="chat_history",
+        )
+
+        await chat_with_message_history.ainvoke(
+            {
+                "question": question,
+                "similars": similars,
+            },
+            config={
+                "configurable": {
+                    "session_id": session_id
+                    },
+            }
+        )
+
+        # await chain.ainvoke({"question": question, "similars": similars})
 
         results = self.handler.copy_token()
         self.handler.clear_tokens()

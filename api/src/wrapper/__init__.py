@@ -1,1 +1,2 @@
 from .neo4j_wrapper import Neo4jDatabase
+from .neo4j_chathistory_wrapper import Neo4jChatHistoryDatabase
