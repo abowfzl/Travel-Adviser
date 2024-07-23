@@ -50,19 +50,23 @@ class ResultGenerator(BaseComponent):
         session_id: str,
         similars: List[Dict[str, Any]]
     ) -> str:
-
-        messages = [
-            ("system", "شما یک دستیار سفر آنلاین هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. شما باید مودب، مفید و آگاه باشید."),
-            ("system", system),
-            ("user", "سلام! من به کمک در برنامه‌ریزی سفر نیاز دارم."),
-            ("user", "می‌خواهم به یک مقصد گردشگری خوب برای تعطیلات بروم."),
-            ("system", f"با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
-            ("user", f"سوال: {question}")
-        ]
-        prompt = ChatPromptTemplate.from_messages(messages)
-
-        output = self.llm.generate(question, session_id, prompt)
-        return output
+        pass
+        # template = """
+        #     شما یک دستیار مشاور سفر هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. با استفاده از زبان مشاوره پاسخ دهید و فقط به پاسخ سوال جواب بدهید و به حاشیه ها اشاره نکنید.
+        #     به عنوان دستیار سفر به سوال به زبان فارسی پاسخ بدهید و اصلا از کلمات و حروف انگلیسی استفاده نکنید.
+        #     سوال:
+        #     {question}
+        # جاذبه های زیر در شهر وجود دارند:
+        #     {similars}
+        #     تاریخجه پیام ها با این کاربر:
+        #     {chat_history}
+        #     """
+        # prompt = PromptTemplate.from_template(template)
+        #
+        # formatted_similars = format_similars(similars)
+        #
+        # output = self.llm.generate(question, session_id, formatted_similars, prompt)
+        # return output
 
     async def run_async(
         self,
