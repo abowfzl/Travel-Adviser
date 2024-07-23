@@ -67,28 +67,11 @@ class Gpt4AllChat(BaseLLM):
             prompt: ChatPromptTemplate
     ) -> [str]:
 
-        await self.websocket.send_json({"type": "debug", "detail": f"created prompt messages: {prompt.messages}"})
+        await self.websocket.send_json({"type": "debug", "detail": f"created prompt: {prompt}"})
+        await self.websocket.send_json({"type": "debug", "detail": f"fetched similars: {similars}"})
 
         chain = prompt | self.model | StrOutputParser()
 
-        # chat_with_message_history = RunnableWithMessageHistory(
-        #     chain,
-        #     get_memory,
-        #     input_messages_key="question",
-        #     history_messages_key="chat_history",
-        # )
-        #
-        # await chat_with_message_history.ainvoke(
-        #     {
-        #         # "context": current_weather,
-        #         "question": question,
-        #         "similars": similars,
-        #
-        #     },
-        #     config={
-        #         "configurable": {"session_id": session_id}
-        #     }
-        # )
         await self.websocket.send_json({"type": "debug", "detail": "chain created and model is going to generate"})
 
         chat_with_message_history = RunnableWithMessageHistory(

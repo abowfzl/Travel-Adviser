@@ -86,15 +86,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     question = data["question"]
 
                     await send_debug_message("received question: " + question)
-                    similars = []
                     try:
                         similars = await similarity.run_async(question=question, session_id=session_id)
                     except Exception as e:
                         await send_error_message(str(e))
                         continue
-                    if similars is None:
-                        await send_error_message("Could not search for similars")
-                        continue
+
                     await websocket.send_json(
                         {
                             "type": "start",

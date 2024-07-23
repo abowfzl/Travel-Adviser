@@ -5,6 +5,14 @@ from embedding.base_embedding import BaseEmbedding
 from wrapper.neo4j_wrapper import Neo4jDatabase
 
 
+def summarize_text(text):
+    sentences = text.split('.')
+
+    if sentences:
+        return sentences[0] + '.'
+
+    return text
+
 class Neo4jSimilarity(BaseComponent):
     def __init__(self, database: Neo4jDatabase, embedder: BaseEmbedding) -> None:
         self.database = database
@@ -13,7 +21,17 @@ class Neo4jSimilarity(BaseComponent):
     async def run_async(self, question: str, session_id: str, similars=None) -> Any:
         question_embedding = await self.embedder.embed_query(question)
         retrieved_items = self.database.semantic_search(question_embedding=question_embedding)
-        contents = [item.content for item in retrieved_items.items]
+
+        contents = []
+        for item in retrieved_items.items:
+            data = ast.literal_eval(item.content)
+
+            contents.append({
+                 'city_name': data['city_name'],
+                 'name': data['name'],
+                 'title': data['title'],
+                 'text': summarize_text(data['text']),
+            })
 
         return contents
 
