@@ -6,10 +6,10 @@ from langchain_core.messages.human import HumanMessage
 class Neo4jChatHistoryDatabase:
     def __init__(
             self,
-            host: str = "neo4j+s://6fc52ca0.databases.neo4j.io",
-            user: str = "abofazlmoslemian1234@gmail.com",
-            password: str = "@BOLFazl 1380",
-            session_id: str = ""
+            host: str,
+            user: str,
+            password: str,
+            session_id: str
     ) -> None:
         self._driver = Neo4jChatMessageHistory(
             url=host,

@@ -44,11 +44,11 @@ def schema_text(node_props, rel_props, rels) -> str:
 class Neo4jDatabase:
     def __init__(
             self,
-            host: str = "neo4j+s://43c248ae.databases.neo4j.io",
-            user: str = "neo4j",
-            password: str = "2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
-            database: str = "neo4j",
-            read_only: bool = True,
+            host: str,
+            user: str,
+            password: str,
+            database: str,
+            read_only: bool,
     ) -> None:
         """Initialize a neo4j database"""
         self._driver = GraphDatabase.driver(host, auth=(user, password))

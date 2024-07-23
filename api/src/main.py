@@ -14,10 +14,10 @@ from wrapper.neo4j_wrapper import Neo4jDatabase
 from wrapper.neo4j_chathistory_wrapper import Neo4jChatHistoryDatabase
 
 neo4j_connection = Neo4jDatabase(
-    host="neo4j+s://43c248ae.databases.neo4j.io",
-    user="neo4j",
-    password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
-    database="neo4j",
+    host=os.getenv('NEO4J_URL'),
+    user=os.getenv('NEO4J_USER'),
+    password=os.getenv('NEO4J_PASS'),
+    database=os.getenv('NEO4J_DATABASE'),
 )
 
 
@@ -81,17 +81,9 @@ async def websocket_endpoint(websocket: WebSocket):
                 embedder=embedder
             )
 
-            chat_history_db = Neo4jChatHistoryDatabase(
-                host="neo4j+s://43c248ae.databases.neo4j.io",
-                user="neo4j",
-                password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
-                session_id=session_id)
-
             if data["type"] == "question":
                 try:
                     question = data["question"]
-
-                    messages = [('human', question)]
 
                     await send_debug_message("received question: " + question)
                     similars = []
@@ -114,12 +106,6 @@ async def websocket_endpoint(websocket: WebSocket):
                         session_id=session_id,
                         similars=similars
                     )
-
-                    messages.append(('ai', output))
-
-                    await chat_history_db.add_messages(messages)
-
-                    await send_debug_message(f"messages added: {messages}")
 
                     await websocket.send_json(
                         {
@@ -175,9 +161,9 @@ async def get_chat_history(session_id: str):
         raise HTTPException(status_code=401, detail="not authorized!")
 
     chat_history_db = Neo4jChatHistoryDatabase(
-        host="neo4j+s://43c248ae.databases.neo4j.io",
-        user="neo4j",
-        password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
+        host=os.getenv('NEO4J_URL'),
+        user=os.getenv('NEO4J_USER'),
+        password=os.getenv('NEO4J_PASS'),
         session_id=session_id)
 
     messages = chat_history_db.get_messages()
@@ -191,9 +177,9 @@ async def clear_chat_history(session_id: str):
         raise HTTPException(status_code=401, detail="not authorized!")
 
     chat_history_db = Neo4jChatHistoryDatabase(
-        host="neo4j+s://43c248ae.databases.neo4j.io",
-        user="neo4j",
-        password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
+        host=os.getenv('NEO4J_URL'),
+        user=os.getenv('NEO4J_USER'),
+        password=os.getenv('NEO4J_PASS'),
         session_id=session_id)
 
     chat_history_db.clear_messages()

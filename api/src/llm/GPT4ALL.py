@@ -1,3 +1,5 @@
+import os
+
 from langchain.schema import StrOutputParser
 from langchain_community.chat_message_histories import Neo4jChatMessageHistory
 from langchain_community.graphs import Neo4jGraph
@@ -10,10 +12,10 @@ from .basellm import BaseLLM
 
 
 graph = Neo4jGraph(
-    url="neo4j+s://43c248ae.databases.neo4j.io:7687",
-    username="neo4j",
-    password="2685ZfD2leQk-K0ny1gKAqGHVlR6OQWfXbMcjylkJAU",
-    database="neo4j",
+    url=os.getenv('NEO4J_URL'),
+    username=os.getenv('NEO4J_USER'),
+    password=os.getenv('NEO4J_PASS'),
+    database=os.getenv('NEO4J_DATABASE'),
 )
 
 
