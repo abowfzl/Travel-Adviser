@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Starting download_files.sh script..."
+
 # Create the target directory if it doesn't exist
 mkdir -p ./.cache
 
@@ -17,5 +19,7 @@ for file in "${!files[@]}"; do
     wget -O "./.cache/$file" "${files[$file]}"
   fi
 done
+
+echo "Finished download_files.sh script..."
 
 exit 0
