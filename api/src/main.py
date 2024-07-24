@@ -21,6 +21,37 @@ neo4j_connection = Neo4jDatabase(
 )
 
 
+def create_neo4j_chat_history_connection(session_id: str):
+    return Neo4jChatHistoryDatabase(
+        host=os.getenv('NEO4J_URL'),
+        user=os.getenv('NEO4J_USER'),
+        password=os.getenv('NEO4J_PASS'),
+        session_id=session_id)
+
+
+def create_embedder(model_name):
+    model = None
+
+    if model_name == 'openai':
+        model = OpenAIEmbedding()
+
+    elif model_name == 'gpt4all':
+        model = Gpt4AllEmbedding()
+
+    return model
+
+
+def create_model(model_name, websocket):
+    model = None
+    if model_name == 'openai':
+        model = ChatOpenAI(websocket)
+
+    elif model_name == 'gpt4all':
+        model = Gpt4AllChat(websocket)
+
+    return model
+
+
 class Payload(BaseModel):
     question: str
     api_key: Optional[str]
@@ -157,11 +188,7 @@ async def get_chat_history(session_id: str):
     if session_id is None:
         raise HTTPException(status_code=401, detail="not authorized!")
 
-    chat_history_db = Neo4jChatHistoryDatabase(
-        host=os.getenv('NEO4J_URL'),
-        user=os.getenv('NEO4J_USER'),
-        password=os.getenv('NEO4J_PASS'),
-        session_id=session_id)
+    chat_history_db = create_neo4j_chat_history_connection(session_id)
 
     messages = chat_history_db.get_messages()
 
@@ -173,11 +200,7 @@ async def clear_chat_history(session_id: str):
     if session_id is None:
         raise HTTPException(status_code=401, detail="not authorized!")
 
-    chat_history_db = Neo4jChatHistoryDatabase(
-        host=os.getenv('NEO4J_URL'),
-        user=os.getenv('NEO4J_USER'),
-        password=os.getenv('NEO4J_PASS'),
-        session_id=session_id)
+    chat_history_db = create_neo4j_chat_history_connection(session_id)
 
     chat_history_db.clear_messages()
 

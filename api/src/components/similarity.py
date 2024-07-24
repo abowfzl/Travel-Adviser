@@ -8,14 +8,6 @@ from wrapper.neo4j_wrapper import Neo4jDatabase
 from .classifier import is_attraction_query
 
 
-def summarize_text(text):
-    sentences = text.split('.')
-
-    if sentences:
-        return sentences[0] + '.'
-
-    return text
-
 class Neo4jSimilarity(BaseComponent):
     def __init__(self, database: Neo4jDatabase, embedder: BaseEmbedding) -> None:
         self.database = database
@@ -34,10 +26,12 @@ class Neo4jSimilarity(BaseComponent):
             data = ast.literal_eval(item.content)
 
             contents.append({
-                 'city_name': data['city_name'],
-                 'name': data['name'],
-                 'title': data['title'],
-                 'text': summarize_text(data['text']) if 'text' in data else "",
+                'city_name': data['city_name'],
+                'name': data['name'],
+                'title': data['title'],
+                'text': data['text'] if 'text' in data else "",
+                'location': data['location'],
+                'url': data['url']
             })
 
         return contents
