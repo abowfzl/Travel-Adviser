@@ -47,17 +47,27 @@ class Gpt4AllChat(BaseLLM):
             self,
             websocket,
             model_name: str = "Meta-Llama-3-8B-Instruct.Q4_0.gguf",
-            max_tokens: int = 1000,
-            temperature: float = 0.0,
     ) -> None:
         self.handler = CustomAsyncCallbackHandler(websocket)
         self.websocket = websocket
         self.model = GPT4All(model="Meta-Llama-3-8B-Instruct.Q4_0.gguf",
+                             backend="llama",
+                             f16_kv=True,
+                             seed=42,
                              callbacks=[self.handler],
-                             streaming=True)
+                             streaming=True,
+                             temp=0.7,
+                             top_p=0.2,
+                             n_batch=16,
+                             n_threads=2,
+                             use_mlock=True,
+                             top_k=40,
+                             n_predict=256,
+                             max_tokens=512,
+                             repeat_last_n=64,
+                             repeat_penalty=1.18,
+        )
         self.model_name = model_name
-        self.max_tokens = max_tokens
-        self.temperature = temperature
 
     async def generate_streaming(
             self,
