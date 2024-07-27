@@ -15,4 +15,4 @@ class OpenAIEmbedding(BaseEmbedding):
     async def embed_query(self, text: str) -> list[float]:
 
         embedding = await client.embeddings.create(input=[text], model=self.model)
-        return embedding["data"][0]["embedding"]
+        return embedding.data[0].embedding
