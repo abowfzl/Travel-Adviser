@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 import json
 
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
+from langchain_core.prompts.chat import MessagesPlaceholder
 
 from llm.basellm import BaseLLM
 from llm.OpenAI import ChatOpenAIChat
@@ -79,6 +80,7 @@ class ResultGenerator(BaseComponent):
 
                 """),
                 ("system", "با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
+                MessagesPlaceholder(variable_name="chat_history"),
                 ("user", "سوال: {question}")
             ]
             prompt = ChatPromptTemplate.from_messages(messages)
