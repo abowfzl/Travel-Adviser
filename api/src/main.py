@@ -9,6 +9,8 @@ from Utils.session_id_generator import Session
 from components.result_generator import ResultGenerator
 from components.similarity import Neo4jSimilarity
 from embedding.GPT4ALL import Gpt4AllEmbedding
+from embedding.OpenAI import OpenAIEmbedding
+from llm.OpenAI import ChatOpenAIChat
 from llm.GPT4ALL import Gpt4AllChat
 from wrapper.neo4j_wrapper import Neo4jDatabase
 from wrapper.neo4j_chathistory_wrapper import Neo4jChatHistoryDatabase
@@ -44,7 +46,7 @@ def create_embedder(model_name):
 def create_model(model_name, websocket):
     model = None
     if model_name == 'openai':
-        model = ChatOpenAI(websocket)
+        model = ChatOpenAIChat(websocket)
 
     elif model_name == 'gpt4all':
         model = Gpt4AllChat(websocket)
@@ -54,7 +56,7 @@ def create_model(model_name, websocket):
 
 class Payload(BaseModel):
     question: str
-    api_key: Optional[str]
+    session_id: str
     model_name: Optional[str]
 
 
@@ -99,13 +101,25 @@ async def websocket_endpoint(websocket: WebSocket):
                 await websocket.send_json({"error": "missing session id"})
                 continue
 
+            if "model" not in data:
+                await websocket.send_json({"error": "missing model"})
+                continue
+
             session_id = data['session_id']
 
+            model_name = data['model']
+
+            model = create_model(model_name, websocket)
+
+            if model is None:
+                await websocket.send_json({"error": "model undefined"})
+                continue
+
             result_generator = ResultGenerator(
-                 llm=Gpt4AllChat(websocket=websocket)
+                llm=model
             )
 
-            embedder = Gpt4AllEmbedding()
+            embedder = create_embedder(model_name)
 
             similarity = Neo4jSimilarity(
                 database=neo4j_connection,
@@ -171,14 +185,14 @@ async def generate_session_id():
 
 
 @app.post("/similars")
-async def get_similars(question: str, session_id: str):
-    embedder = Gpt4AllEmbedding()
+async def get_similars(payload: Payload):
+    embedder = create_embedder(payload.model_name)
 
     similarity = Neo4jSimilarity(
         database=neo4j_connection,
         embedder=embedder
     )
-    similars = await similarity.run_async(question=question, session_id=session_id)
+    similars = await similarity.run_async(question=payload.question, session_id=payload.session_id)
 
     return {'similars': similars}
 
