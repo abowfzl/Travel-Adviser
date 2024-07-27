@@ -1,18 +1,12 @@
 from typing import Any, Dict, List
+import json
 
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 
 from llm.basellm import BaseLLM
+from llm.OpenAI import ChatOpenAIChat
+from llm.GPT4ALL import Gpt4AllChat
 from .base_component import BaseComponent
-
-system = f"""
-شما یک دستیار مشاور سفر هستید و درباره جاذبه‌های شهرها گفتگو می‌کنید. با استفاده از زبان مشاوره پاسخ دهید.
-آخرین پیام شامل اطلاعات است و شما باید پاسخی قابل خواندن توسط انسان بر اساس اطلاعات داده شده تولید کنید.
-پاسخ را طوری بسازید که به عنوان پاسخ به سوال به نظر برسد. اشاره نکنید که نتیجه بر اساس اطلاعات داده شده است.
-هیچ اطلاعات اضافی که به صراحت در آخرین پیام ارائه نشده است را اضافه نکنید.
-تکرار می‌کنم، هیچ اطلاعاتی که به صراحت داده نشده است را اضافه نکنید.
-لطفاً به تمام سوالات به زبان فارسی پاسخ دهید.
-"""
 
 
 def remove_large_lists(d: Dict[str, Any]) -> Dict[str, Any]:
@@ -44,6 +38,68 @@ class ResultGenerator(BaseComponent):
         self.llm = llm
         self.exclude_embeddings = exclude_embeddings
 
+    def format_similars(self, similars):
+        formatted_similars = ''
+        if isinstance(self.llm, Gpt4AllChat):
+            # Format the attractions data to include in the prompt
+            formatted_similars = "\n".join([f"{sim['name']}: {sim['text']}" for sim in similars])
+            return formatted_similars
+        elif isinstance(self.llm, ChatOpenAIChat):
+            formatted_similars = json.dumps(similars, ensure_ascii=False)
+
+        return formatted_similars
+
+    def generate_prompt(self):
+        prompt = None
+        if isinstance(self.llm, ChatOpenAIChat):
+            messages = [
+                ("system", """
+                شما به عنوان یک مشاور سفر هوشمند عمل می‌کنید که به کاربران کمک می‌کند تا برنامه‌های سفر خود را به بهترین شکل ممکن تنظیم کنند. کاربران ممکن است سوالاتی درباره جاهای دیدنی، برنامه‌ریزی سفر، پیشنهادات گردشگری و تفریحات محلی داشته باشند. لطفاً با توجه به مقصد و مدت زمان سفر کاربر، یک جدول زمان‌بندی دقیق برای برنامه سفر تهیه کنید که شامل زمان و مکان بازدید باشد.
+
+مثال:
+کاربر قصد دارد به مدت ۳ روز به شیراز سفر کند و علاقه‌مند به بازدید از مکان‌های تاریخی، باغ‌ها و رستوران‌های محلی است.
+
+### برنامه سفر به شیراز
+| روز | ساعت | مقصد/فعالیت | توضیحات |
+| --- | ----- | ------------ | ------- |
+| روز اول | 9:00 - 11:00 | بازدید از تخت جمشید | مکان تاریخی و باستانی |
+| روز اول | 11:30 - 13:00 | باغ ارم | بازدید از باغ تاریخی |
+| روز اول | 13:00 - 14:00 | ناهار در رستوران سنتی | تجربه غذای محلی |
+| روز اول | 14:30 - 17:00 | بازار وکیل | خرید و گشت و گذار |
+| روز دوم | 9:00 - 11:00 | آرامگاه حافظ | بازدید از آرامگاه شاعر معروف |
+| روز دوم | 11:30 - 13:00 | باغ جهان نما | بازدید از باغ تاریخی |
+| روز دوم | 13:00 - 14:00 | ناهار در کافه رستوران سنتی | تجربه غذای محلی |
+| روز دوم | 14:30 - 17:00 | مسجد نصیرالملک | بازدید از مسجد تاریخی و زیبا |
+| روز سوم | 9:00 - 11:00 | باغ دلگشا | بازدید از باغ تاریخی |
+| روز سوم | 11:30 - 13:00 | ارگ کریم خان | بازدید از ارگ تاریخی |
+| روز سوم | 13:00 - 14:00 | ناهار در رستوران سنتی | تجربه غذای محلی |
+| روز سوم | 14:30 - 17:00 | خرید سوغات | گشت و گذار و خرید سوغات |
+
+لطفاً یک جدول مشابه برای برنامه سفر کاربر تهیه کنید.
+
+                """),
+                ("system", "با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
+                ("user", "سوال: {question}")
+            ]
+            prompt = ChatPromptTemplate.from_messages(messages)
+
+        elif isinstance(self.llm, Gpt4AllChat):
+            template = """
+                        پیام سیستم:
+            شما یک دستیار مشاور سفر هستید و درباره جاذبه‌های شهرها، در برنامه‌ریزی و سازماندهی سفرهایشان وهمچنین راهنمایی درباره انتخاب یک مقصد گردشگری مناسب برای کاربران گفتگو می‌کنید. با استفاده از زبان مشاوره پاسخ دهید.            
+                        به سوال به زبان فارسی پاسخ بدهید و به هیچ وجه از کلمات و حروف انگلیسی استفاده نکنید.
+                        سوال کاربر:
+                        {question}
+                    جاذبه های زیر در شهر وجود دارند:    
+                        {similars}
+                        تاریخجه پیام ها با این کاربر:
+                        {chat_history}
+                        """
+
+            prompt = PromptTemplate.from_template(template)
+
+        return prompt
+
     def run(
         self,
         question: str,
@@ -51,22 +107,6 @@ class ResultGenerator(BaseComponent):
         similars: List[Dict[str, Any]]
     ) -> str:
         pass
-        # template = """
-        #     شما یک دستیار مشاور سفر هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. با استفاده از زبان مشاوره پاسخ دهید و فقط به پاسخ سوال جواب بدهید و به حاشیه ها اشاره نکنید.
-        #     به عنوان دستیار سفر به سوال به زبان فارسی پاسخ بدهید و اصلا از کلمات و حروف انگلیسی استفاده نکنید.
-        #     سوال:
-        #     {question}
-        # جاذبه های زیر در شهر وجود دارند:
-        #     {similars}
-        #     تاریخجه پیام ها با این کاربر:
-        #     {chat_history}
-        #     """
-        # prompt = PromptTemplate.from_template(template)
-        #
-        # formatted_similars = format_similars(similars)
-        #
-        # output = self.llm.generate(question, session_id, formatted_similars, prompt)
-        # return output
 
     async def run_async(
         self,
@@ -75,16 +115,10 @@ class ResultGenerator(BaseComponent):
         similars: List[Dict[str, Any]]
     ) -> [str]:
 
-        messages = [
-            ("system", "شما یک دستیار سفر آنلاین هستید که به کاربران در برنامه‌ریزی و سازماندهی سفرهایشان کمک می‌کنید. شما باید مودب، مفید و آگاه باشید."),
-            ("system", system),
-            ("user", "سلام! من به کمک در برنامه‌ریزی سفر نیاز دارم."),
-            ("user", "می‌خواهم به یک مقصد گردشگری خوب برای تعطیلات بروم."),
-            ("system", "با استفاده از نتایج زیر به عنوان دانش خود به سوال پاسخ دهید: {similars}"),
-            ("user", "سوال: {question}")
-        ]
-        prompt = ChatPromptTemplate.from_messages(messages)
+        formatted_similars = self.format_similars(similars)
 
-        output = await self.llm.generate_streaming(question, session_id, similars, prompt)
+        prompt = self.generate_prompt()
+
+        output = await self.llm.generate_streaming(question, session_id, formatted_similars, prompt)
 
         return "".join(output)

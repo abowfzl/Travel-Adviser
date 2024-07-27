@@ -2,7 +2,7 @@ import os
 
 from langchain.schema import StrOutputParser
 
-from langchain_community.llms.openai import OpenAIChat
+from langchain_community.chat_models import ChatOpenAI
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -24,15 +24,16 @@ def get_session_history(session_id):
     return Neo4jChatMessageHistory(session_id=session_id, graph=graph)
 
 
-class ChatOpenAI(BaseLLM):
+class ChatOpenAIChat(BaseLLM):
     def __init__(
-        self,
-        websocket,
-        model_name: str = "gpt-3.5-turbo",
+            self,
+            websocket,
+            model_name: str = "gpt-3.5-turbo",
     ) -> None:
-        self.websocket = websocket,
-        self.model = OpenAIChat(openai_api_key=os.getenv('OPENAPI_APIKEY'),
-                                streaming=True),
+        self.websocket = websocket
+        self.model = ChatOpenAI(openai_api_key=os.getenv('OPENAPI_APIKEY'),
+                                #openai_api_base=os.getenv('OPENAPI_BASEURL'),
+                                streaming=True)
         self.model_name = model_name
 
     async def generate_streaming(
@@ -70,10 +71,9 @@ class ChatOpenAI(BaseLLM):
                 },
             }
         ):
-            token = chunk.content
-            response = {"type": "stream", "output": token}
+            response = {"type": "stream", "output": chunk}
             await self.websocket.send_json(response)
 
-            tokens.append(token)
+            tokens.append(chunk)
 
         return tokens
