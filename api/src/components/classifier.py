@@ -1,6 +1,7 @@
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
+import numpy as np
 
 training_data = [
     ("من می‌خواهم به شیراز بروم. چه جاهایی را پیشنهاد می‌دهید؟", "attraction_query"),
@@ -46,12 +47,20 @@ training_data = [
     ("ببخشید", "apology"),
     ("کمک", "help"),
     ("لطفا", "request"),
-    ("آیا می‌توانید کمک کنید؟", "help_request")
+    ("آیا می‌توانید کمک کنید؟", "help_request"),
+    ("دیدنی‌های مشهد", "attraction_query"),
+    ("جاذبه‌های توریستی تبریز", "attraction_query"),
+    ("معرفی مکان‌های دیدنی اصفهان", "attraction_query"),
+    ("بهترین جاذبه‌های تهران", "attraction_query"),
+    ("رستوران‌های معروف تهران", "attraction_query"),
+    ("جاهای توریستی شیراز", "attraction_query"),
+    ("هتل‌های اصفهان", "attraction_query"),
+    ("دیدنی‌های تبریز", "attraction_query"),
 ]
 
 training_texts, training_labels = zip(*training_data)
 
-pipeline = make_pipeline(CountVectorizer(), LogisticRegression())
+pipeline = make_pipeline(TfidfVectorizer(stop_words='english'), LogisticRegression(max_iter=1000))
 
 pipeline.fit(training_texts, training_labels)
 
@@ -59,19 +68,20 @@ attraction_keywords = ["جاهای دیدنی", "جاذبه‌ها", "جاذبه
 
 
 def is_attraction_query(user_input):
+    for keyword in attraction_keywords:
+        if keyword in user_input:
+            return True
+
     proba = pipeline.predict_proba([user_input])
     intent = pipeline.predict([user_input])[0]
 
     threshold = 0.6
+    dynamic_threshold = max(threshold, np.mean(proba[0]))
 
-    if max(proba[0]) < threshold:
+    if max(proba[0]) < dynamic_threshold:
         return False
 
     if intent == "attraction_query":
         return True
-
-    for keyword in attraction_keywords:
-        if keyword in user_input:
-            return True
 
     return False
