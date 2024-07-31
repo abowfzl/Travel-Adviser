@@ -28,14 +28,18 @@ services:
       - downloader
     networks:
       - app-network
-  # frontend:
-  #   build:
-  #     context: ./ui
-  #   hostname: ui
-  #   restart: always
-  #   container_name: ui
-  #   ports:
-  #     - 4173:4173
+  frontend:
+    build:
+      context: ./ui
+    hostname: ui
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - app-network
+    container_name: ui
+    ports:
+      - 4173:4173
   nginx:
     image: nginx:latest
     container_name: nginx

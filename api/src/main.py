@@ -2,6 +2,7 @@ import os
 from typing import Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -21,6 +22,9 @@ neo4j_connection = Neo4jDatabase(
     password=os.getenv('NEO4J_PASS'),
     database=os.getenv('NEO4J_DATABASE'),
 )
+
+# Initialize LLM modules
+openai_api_key = os.environ.get("OPENAI_API_KEY", None)
 
 
 def create_neo4j_chat_history_connection(session_id: str):
@@ -207,6 +211,11 @@ async def get_chat_history(session_id: str):
     messages = chat_history_db.get_messages()
 
     return {"messages": messages}
+
+
+@app.get("/hasapikey")
+async def has_api_key():
+    return JSONResponse(content={"output": openai_api_key is not None})
 
 
 @app.delete("/chat_history")
