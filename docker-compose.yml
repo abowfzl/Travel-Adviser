@@ -4,7 +4,7 @@ services:
     build:
       context: ./downloader
       dockerfile: Dockerfile
-    container_name: downloader
+    container_name: travel_adviser_downloader
     volumes:
       - ./.cache:/.cache
     restart: "no"
@@ -37,18 +37,20 @@ services:
       - .env
     networks:
       - app-network
-    container_name: ui
+    container_name: travel_adviser_ui
     ports:
       - 4173:4173
   nginx:
     image: nginx:latest
-    container_name: nginx
+    container_name: travel_adviser_nginx
+    hostname: nginx
     volumes:
       - ./nginx:/etc/nginx
     ports:
       - 80:80
     depends_on:
       - backend
+      - frontend
     networks:
       - app-network
     restart: always
