@@ -16,14 +16,15 @@ const loadingMessage: ChatMessageObject = {
 function ChatContainer(props: ChatContainerProps) {
   const { chatMessages = [], loading } = props;
   return (
-    <div className="relative flex flex-col w-full min-w-[800px] overflow-x-auto rounded-b-box rounded-tr-box">
-      <div className="flex flex-wrap items-center justify-center gap-2 p-4 overflow-x-hidden bg-top bg-cover preview">
-        <div className="flex flex-col w-full gap-2">
-          {chatMessages.map((chatMessage) => (
+    <div className="relative flex flex-col w-full min-w-[320px] max-w-full overflow-x-auto rounded-lg shadow-lg bg-light-bg dark:bg-dark-bg transition-colors duration-300 p-6">
+      <div className="flex flex-col w-full max-w-4xl mx-auto space-y-4">
+        {chatMessages.length > 0 ? (
+          chatMessages.map((chatMessage) => (
             <ChatMessage key={chatMessage.id} chatMessage={chatMessage} />
-          ))}
-          {loading && <ChatMessage chatMessage={loadingMessage} />}
-        </div>
+          ))
+        ) : (
+          <div className="text-gray-500 dark:text-gray-400">Start a conversation...</div>
+        )}
       </div>
     </div>
   );

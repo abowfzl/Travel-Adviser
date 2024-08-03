@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, ChangeEvent } from "react";
 import ChatContainer from "./ChatContainer";
-import type { ChatMessageObject } from "./ChatMessage";
+import type { ChatMessageObject, ChatMessageResponseObject } from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import KeyModal from "../components/keymodal";
@@ -44,6 +44,14 @@ const HAS_API_KEY_URI =
 const GENERATE_SESSION_ID_URI =
   import.meta.env.VITE_GENERATE_SESSION_ID_ENDPOINT ??
   "http://localhost:8000/generate_session_id";
+
+const GET_CHAT_HISTORY_URI =
+  import.meta.env.VITE_GET_CHAT_HISTORY_ENDPOINT ??
+  "http://localhost:8000/chat_history?session_id=";
+
+const CLEAR_CHAT_HISTORY_URI =
+  import.meta.env.VITE_CLEAR_CHAT_HISTORY_ENDPOINT ??
+  "http://localhost:8000/chat_history?session_id=";
 
 function loadKeyFromStorage() {
   return localStorage.getItem("api_key");
@@ -143,6 +151,48 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const session_id = loadSessionIdFromStorage();
+    const url = GET_CHAT_HISTORY_URI + sessionId
+    fetch(url).then(
+      (response) => {
+        response.json().then(
+          (result) => {
+            const messages: ChatMessageResponseObject[] = result.messages;
+            const newChatMessages: ChatMessageObject[] = messages.map((message: ChatMessageResponseObject, index: number): ChatMessageObject | null => {
+              if (message.type === 'human') {
+                return {
+                  id: chatMessages.length + index,
+                  type: 'text',
+                  sender: 'self',
+                  message: message.content,
+                  complete: true,
+                };
+              } else if (message.type === 'ai') {
+                return {
+                  id: chatMessages.length + index,
+                  type: 'text',
+                  sender: 'bot',
+                  message: message.content,
+                  complete: true,
+                };
+              }
+              return null;
+            }).filter((message): message is ChatMessageObject => message !== null);
+
+            setChatMessages((prevChatMessages) => prevChatMessages.concat(newChatMessages));
+          },
+          (error) => {
+            setServerAvailable(false);
+          }
+        );
+      },
+      (error) => {
+        setServerAvailable(false);
+      }
+    );
+  }, []);
+
+  useEffect(() => {
     if (!lastMessage || !serverAvailable) {
       return;
     }
@@ -217,6 +267,49 @@ function App() {
     sendJsonMessage(webSocketRequest);
   };
 
+  const clearChatHistory = () => {
+    const session_id = loadSessionIdFromStorage();
+    const url = CLEAR_CHAT_HISTORY_URI + sessionId
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+    })
+    .then(
+      (response) => {
+        response.json().then(
+          (result) => {
+
+            if (!result.success) {
+              console.error("error on clearing chat history");
+              setErrorMessage("error on clearing chat history")
+            }
+          },
+          (error) => {
+            setServerAvailable(false);
+          }
+        );
+      },
+      (error) => {
+        setServerAvailable(false);
+      }
+    );
+  };
+
+  const onClearChatHistory = () => {
+    if (conversationState === "ready") {
+      setChatMessages((chatMessages) =>
+        []
+      );
+      if (SEND_REQUESTS) {
+        clearChatHistory();
+      }
+      setErrorMessage(null);
+    }
+  };
+
   const onChatInput = (message: string) => {
     if (conversationState === "ready") {
       setChatMessages((chatMessages) =>
@@ -260,24 +353,55 @@ function App() {
     setText2cypherModel(e.target.value)
   }
 
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', darkMode.toString());
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div className="flex flex-col min-w-[800px] min-h-[100vh] bg-palette-neutral-bg-strong">
-      {needsApiKey && (
-        <div className="flex justify-end mr-4">
-          <button onClick={openModal}>API Key</button>
-        </div>
-      )}
-        <div className="flex justify-end mr-4">
-        <select value={text2cypherModel} onChange={handleModelChange}>
-            <option value="openai">openai</option>
-            <option value="gpt4all">gpt4all</option>
-        </select>
-        </div>
-      <div className="p-6 mx-auto mt-20 rounded-lg bg-palette-neutral-bg-weak min-h-[6rem] min-w-[18rem] max-w-4xl ">
-        {!serverAvailable && (
-          <div>Server is unavailable, please reload the page to try again.</div>
+    <div className="flex flex-col w-full min-h-screen bg-light-bg dark:bg-dark-bg transition-colors duration-300">
+      <header className="flex justify-between items-center p-4 shadow-md bg-light-surface dark:bg-dark-surface">
+        <button
+          onClick={toggleDarkMode}
+          className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-light-surface dark:bg-dark-surface rounded-md shadow-md hover:bg-light-border dark:hover:bg-dark-border transition duration-200"
+        >
+          Toggle {darkMode ? 'Light' : 'Dark'} Mode
+        </button>
+        {needsApiKey && (
+          <button
+            onClick={openModal}
+            className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-green-500 hover:bg-green-600 rounded-md shadow-md transition duration-200"
+          >
+            API Key
+          </button>
         )}
-        {serverAvailable && needsApiKeyLoading && <div>Initializing...</div>}
+        <select
+          value={text2cypherModel}
+          onChange={handleModelChange}
+          className="p-2 text-sm font-semibold border border-light-border dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text transition duration-200"
+        >
+          <option value="openai">OpenAI</option>
+          <option value="gpt4all">GPT4All</option>
+        </select>
+      </header>
+      <main className="flex flex-col items-center justify-center px-4 py-6 mx-auto mt-10 space-y-4 bg-light-surface dark:bg-dark-surface rounded-lg shadow-lg min-h-[6rem] max-w-2xl transition-all duration-300">
+        {!serverAvailable && (
+          <div className="text-center text-red-600 dark:text-red-400">
+            Server is unavailable, please reload the page to try again.
+          </div>
+        )}
+        {serverAvailable && needsApiKeyLoading && (
+          <div className="text-center text-light-text dark:text-dark-text">
+            Initializing...
+          </div>
+        )}
         <KeyModal
           isOpen={showContent && needsApiKey && modalIsOpen}
           onCloseModal={onCloseModal}
@@ -288,24 +412,31 @@ function App() {
           <>
             <ChatContainer
               chatMessages={chatMessages}
-              loading={conversationState === "waiting"}
+              loading={conversationState === 'waiting'}
             />
             <ChatInput
               onChatInput={onChatInput}
-              loading={conversationState === "waiting"}
+              onClearChatHistory={onClearChatHistory}
+              loading={conversationState === 'waiting'}
             />
-            {errorMessage}
+            {errorMessage && (
+              <div className="text-center text-red-600 dark:text-red-400">
+                {errorMessage}
+              </div>
+            )}
           </>
-        )}{" "}
+        )}
         {showContent && readyState === ReadyState.CONNECTING && (
-          <div>Connecting...</div>
+          <div className="text-center text-yellow-600 dark:text-yellow-400">
+            Connecting...
+          </div>
         )}
         {showContent && readyState === ReadyState.CLOSED && (
-          <div className="flex flex-col">
+          <div className="text-center text-light-text dark:text-dark-text">
             <div>Could not connect to server, reconnecting...</div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
