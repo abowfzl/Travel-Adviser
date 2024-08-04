@@ -366,7 +366,7 @@ function App() {
   };
 
 return (
-  <div className="flex flex-col h-screen w-full bg-light-bg dark:bg-dark-bg transition-colors duration-300 overflow-hidden">
+  <div className="flex flex-col h-screen w-full bg-light-bg dark:bg-dark-bg transition-colors duration-300">
     <header className="flex justify-between items-center p-4 shadow-md bg-light-surface dark:bg-dark-surface w-full">
       <button
         onClick={toggleDarkMode}
@@ -409,8 +409,8 @@ return (
         apiKey={apiKey}
       />
       {showContent && readyState === ReadyState.OPEN && (
-        <>
-          <div className="flex flex-1 w-full overflow-hidden max-w-xl">
+        <div className="flex flex-col flex-1 items-center w-full max-w-xl overflow-hidden">
+          <div className="flex flex-1 w-full overflow-hidden">
             <ChatContainer
               chatMessages={chatMessages}
               loading={conversationState === 'waiting'}
@@ -428,7 +428,7 @@ return (
               {errorMessage}
             </div>
           )}
-        </>
+        </div>
       )}
       {showContent && readyState === ReadyState.CONNECTING && (
         <div className="text-center text-yellow-600 dark:text-yellow-400">
@@ -443,6 +443,7 @@ return (
     </div>
   </div>
 );
+
 
 }
 
