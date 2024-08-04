@@ -409,8 +409,8 @@ return (
         apiKey={apiKey}
       />
       {showContent && readyState === ReadyState.OPEN && (
-        <div className="flex flex-col flex-1 items-center w-full max-w-xl overflow-hidden">
-          <div className="flex flex-1 w-full overflow-hidden">
+        <div className="flex flex-col flex-1 w-full max-w-xl overflow-hidden">
+          <div className="flex flex-1 w-full overflow-y-auto">
             <ChatContainer
               chatMessages={chatMessages}
               loading={conversationState === 'waiting'}

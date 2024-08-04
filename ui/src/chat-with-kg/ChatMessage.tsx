@@ -33,26 +33,22 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
 
   const isBot = sender === "bot";
 
-  const chatClass = `relative max-w-full ${
-    isBot ? "self-start mr-10" : "ml-10 self-end"
+  const chatClass = `flex flex-row relative max-w-full ${
+    isBot ? 'self-start mr-10' : 'ml-10 self-end'
   }`;
 
   const backgroundColorClass = isBot
-    ? "bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
-    : "bg-blue-500 text-white";
+    ? 'bg-gray-100 text-black dark:bg-gray-800 dark:text-white'
+    : 'bg-blue-500 text-white dark:bg-blue-600';
 
-  const messageBubbleClass = `relative min-w-0 max-w-lg px-5 py-3 rounded-lg shadow-md break-words ${backgroundColorClass} ${
-    isBot ? "rounded-br-lg" : "rounded-bl-lg"
+  const messageBubbleClass = `min-w-0 max-w-lg px-4 py-3 rounded-xl shadow-md break-words ${backgroundColorClass} ${
+    isBot ? 'rounded-br-xl' : 'rounded-bl-xl'
   }`;
 
   return (
     <div className={chatClass}>
       {isBot && <ChatMessageTail side="left" />}
-      <div
-        className={messageBubbleClass}
-        dir="rtl"
-        style={{ textAlign: "right" }}
-      >
+      <div className={messageBubbleClass} dir="rtl" style={{ textAlign: 'right' }}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
@@ -97,7 +93,7 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
               );
             },
             table: ({ children }) => (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto hidden sm:block">
                 <table className="min-w-full border-collapse">{children}</table>
               </div>
             ),
