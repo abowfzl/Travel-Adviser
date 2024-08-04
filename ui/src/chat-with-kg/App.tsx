@@ -366,7 +366,7 @@ function App() {
   };
 
 return (
-  <div className="flex flex-col h-screen w-full bg-light-bg dark:bg-dark-bg transition-colors duration-300">
+  <div className="flex flex-col h-screen w-full bg-light-bg dark:bg-dark-bg transition-colors duration-300 overflow-hidden">
     <header className="flex justify-between items-center p-4 shadow-md bg-light-surface dark:bg-dark-surface w-full">
       <button
         onClick={toggleDarkMode}
@@ -391,7 +391,7 @@ return (
         <option value="gpt4all">GPT4All</option>
       </select>
     </header>
-    <div className="flex-1 flex flex-col items-center justify-center w-full overflow-y-auto">
+    <div className="flex-1 flex flex-col items-center justify-center w-full overflow-hidden">
       {!serverAvailable && (
         <div className="text-center text-red-600 dark:text-red-400">
           Server is unavailable, please reload the page to try again.
@@ -443,7 +443,6 @@ return (
     </div>
   </div>
 );
-
 
 }
 
