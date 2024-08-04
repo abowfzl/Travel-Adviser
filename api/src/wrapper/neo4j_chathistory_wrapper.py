@@ -9,13 +9,15 @@ class Neo4jChatHistoryDatabase:
             host: str,
             user: str,
             password: str,
-            session_id: str
+            session_id: str,
+            window: int = 10
     ) -> None:
         self._driver = Neo4jChatMessageHistory(
             url=host,
             username=user,
             password=password,
-            session_id=session_id)
+            session_id=session_id,
+            window=window)
 
     async def add_messages(self, messages: [(str, str)]):
         new_messages = []

@@ -134,7 +134,7 @@ class Neo4jDatabase:
 
     def semantic_search(self, question_embedding) -> RetrieverResult:
         retriever = VectorRetriever(self._driver, "attractionEmbed")
-        result = retriever.search(query_vector=question_embedding, top_k=3)
+        result = retriever.search(query_vector=question_embedding, top_k=10)
         return result
 
     def __del__(self) -> None:
