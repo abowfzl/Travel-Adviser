@@ -365,80 +365,86 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  return (
-    <div className="flex flex-col w-full min-h-screen bg-light-bg dark:bg-dark-bg transition-colors duration-300">
-      <header className="flex justify-between items-center p-4 shadow-md bg-light-surface dark:bg-dark-surface">
+return (
+  <div className="flex flex-col h-screen w-full bg-light-bg dark:bg-dark-bg transition-colors duration-300">
+    <header className="flex justify-between items-center p-4 shadow-md bg-light-surface dark:bg-dark-surface w-full">
+      <button
+        onClick={toggleDarkMode}
+        className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-light-surface dark:bg-dark-surface rounded-md shadow-md hover:bg-light-border dark:hover:bg-dark-border transition duration-200"
+      >
+        Toggle {darkMode ? 'Light' : 'Dark'} Mode
+      </button>
+      {needsApiKey && (
         <button
-          onClick={toggleDarkMode}
-          className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-light-surface dark:bg-dark-surface rounded-md shadow-md hover:bg-light-border dark:hover:bg-dark-border transition duration-200"
+          onClick={openModal}
+          className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-green-500 hover:bg-green-600 rounded-md shadow-md transition duration-200"
         >
-          Toggle {darkMode ? 'Light' : 'Dark'} Mode
+          API Key
         </button>
-        {needsApiKey && (
-          <button
-            onClick={openModal}
-            className="px-4 py-2 text-sm font-semibold text-light-text dark:text-dark-text bg-green-500 hover:bg-green-600 rounded-md shadow-md transition duration-200"
-          >
-            API Key
-          </button>
-        )}
-        <select
-          value={text2cypherModel}
-          onChange={handleModelChange}
-          className="p-2 text-sm font-semibold border border-light-border dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text transition duration-200"
-        >
-          <option value="openai">OpenAI</option>
-          <option value="gpt4all">GPT4All</option>
-        </select>
-      </header>
-      <main className="flex flex-col items-center justify-center px-4 py-6 mx-auto mt-10 space-y-4 bg-light-surface dark:bg-dark-surface rounded-lg shadow-lg min-h-[6rem] max-w-2xl transition-all duration-300">
-        {!serverAvailable && (
-          <div className="text-center text-red-600 dark:text-red-400">
-            Server is unavailable, please reload the page to try again.
-          </div>
-        )}
-        {serverAvailable && needsApiKeyLoading && (
-          <div className="text-center text-light-text dark:text-dark-text">
-            Initializing...
-          </div>
-        )}
-        <KeyModal
-          isOpen={showContent && needsApiKey && modalIsOpen}
-          onCloseModal={onCloseModal}
-          onApiKeyChanged={onApiKeyChange}
-          apiKey={apiKey}
-        />
-        {showContent && readyState === ReadyState.OPEN && (
-          <>
+      )}
+      <select
+        value={text2cypherModel}
+        onChange={handleModelChange}
+        className="p-2 text-sm font-semibold border border-light-border dark:border-dark-border rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-300 bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text transition duration-200"
+      >
+        <option value="openai">OpenAI</option>
+        <option value="gpt4all">GPT4All</option>
+      </select>
+    </header>
+    <div className="flex-1 flex flex-col items-center justify-center w-full overflow-y-auto">
+      {!serverAvailable && (
+        <div className="text-center text-red-600 dark:text-red-400">
+          Server is unavailable, please reload the page to try again.
+        </div>
+      )}
+      {serverAvailable && needsApiKeyLoading && (
+        <div className="text-center text-light-text dark:text-dark-text">
+          Initializing...
+        </div>
+      )}
+      <KeyModal
+        isOpen={showContent && needsApiKey && modalIsOpen}
+        onCloseModal={onCloseModal}
+        onApiKeyChanged={onApiKeyChange}
+        apiKey={apiKey}
+      />
+      {showContent && readyState === ReadyState.OPEN && (
+        <>
+          <div className="flex flex-1 w-full overflow-hidden max-w-xl">
             <ChatContainer
               chatMessages={chatMessages}
               loading={conversationState === 'waiting'}
             />
+          </div>
+          <div className="w-full max-w-xl bg-white dark:bg-gray-800 shadow-lg">
             <ChatInput
               onChatInput={onChatInput}
               onClearChatHistory={onClearChatHistory}
               loading={conversationState === 'waiting'}
             />
-            {errorMessage && (
-              <div className="text-center text-red-600 dark:text-red-400">
-                {errorMessage}
-              </div>
-            )}
-          </>
-        )}
-        {showContent && readyState === ReadyState.CONNECTING && (
-          <div className="text-center text-yellow-600 dark:text-yellow-400">
-            Connecting...
           </div>
-        )}
-        {showContent && readyState === ReadyState.CLOSED && (
-          <div className="text-center text-light-text dark:text-dark-text">
-            <div>Could not connect to server, reconnecting...</div>
-          </div>
-        )}
-      </main>
+          {errorMessage && (
+            <div className="text-center text-red-600 dark:text-red-400">
+              {errorMessage}
+            </div>
+          )}
+        </>
+      )}
+      {showContent && readyState === ReadyState.CONNECTING && (
+        <div className="text-center text-yellow-600 dark:text-yellow-400">
+          Connecting...
+        </div>
+      )}
+      {showContent && readyState === ReadyState.CLOSED && (
+        <div className="text-center text-light-text dark:text-dark-text">
+          <div>Could not connect to server, reconnecting...</div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
+
 }
 
 export default App;

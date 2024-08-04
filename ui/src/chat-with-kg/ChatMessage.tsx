@@ -32,16 +32,17 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
   const { message, sender, cypher } = chatMessage;
 
   const isBot = sender === "bot";
-  const chatClass = `flex relative max-w-full ${
+
+  const chatClass = `relative max-w-full ${
     isBot ? "self-start mr-10" : "ml-10 self-end"
   }`;
 
   const backgroundColorClass = isBot
-    ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-200" // Bot message colors
-    : "bg-blue-500 text-white dark:bg-gray-700 dark:text-gray-200";  // User message colors
+    ? "bg-gray-200 dark:bg-gray-800 text-black dark:text-white"
+    : "bg-blue-500 text-white";
 
-  const messageBubbleClass = `min-w-0 max-w-lg px-5 py-3 rounded-xl shadow-md break-words ${backgroundColorClass} ${
-    isBot ? "rounded-br-xl" : "rounded-bl-xl"
+  const messageBubbleClass = `relative min-w-0 max-w-lg px-5 py-3 rounded-lg shadow-md break-words ${backgroundColorClass} ${
+    isBot ? "rounded-br-lg" : "rounded-bl-lg"
   }`;
 
   return (
@@ -55,6 +56,14 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
+            a: ({ node, ...props }) => (
+              <a
+                {...props}
+                className="text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-500 underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            ),
             h1: ({ node, ...props }) => (
               <h1 className="text-2xl font-bold mb-2" {...props} />
             ),
@@ -117,27 +126,25 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
 }
 
 function ChatMessageTail({ side }: { side: "left" | "right" }) {
-  const chatTailStyle: React.CSSProperties = {
-    width: "0.75rem",
-    height: "0.75rem",
-    WebkitMaskImage: `url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMycgaGVpZ2h0PSczJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxwYXRoIGZpbGw9J2JsYWNrJyBkPSdtIDAgMyBMIDMgMyBMIDMgMCBDIDMgMSAxIDMgMCAzJy8+PC9zdmc+)`,
-    maskImage: `url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMycgaGVpZ2h0PSczJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxwYXRoIGZpbGw9J2JsYWNrJyBkPSdtIDAgMyBMIDMgMyBMIDMgMCBDIDMgMSAxIDMgMCAzJy8+PC9zdmc+)`,
-    WebkitMaskPosition: "center",
-    maskPosition: "center",
-    maskSize: "contain",
-    WebkitMaskSize: "contain",
-    backgroundColor: side === "left" ? "#374151" : "#3B82F6",
-  };
+  const tailColor = side === "left" ? "fill-gray-200 dark:fill-gray-800" : "fill-blue-500";
 
-  if (side === "left") {
-    chatTailStyle["left"] = "-0.75rem";
-  } else {
-    chatTailStyle["right"] = "-0.75rem";
-    chatTailStyle["WebkitTransform"] = "scaleX(-1)";
-    chatTailStyle["transform"] = "scaleX(-1)";
-  }
-
-  return <div style={chatTailStyle}></div>;
+  return (
+    <div
+      className={`absolute bottom-0 ${side === "left" ? "left-0" : "right-0"} translate-y-1/2`}
+      style={{ width: "20px", height: "20px" }}
+    >
+      <svg
+        viewBox="0 0 10 10"
+        width="100%"
+        height="100%"
+        className={`fill-current ${side === "left" ? "text-gray-200 dark:text-gray-800" : "text-blue-500"}`}
+        style={{ transform: side === "right" ? "rotate(180deg)" : "none" }}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <polygon points="0,0 10,5 0,10" />
+      </svg>
+    </div>
+  );
 }
 
 function ChatCypherDetail({ cypher }: { cypher: string }) {
