@@ -3,10 +3,65 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Travel Adviser UI Demo</title>
+    <title>Travel Companion Chatbot</title>
+    <meta name="description" content="Explore and plan your next adventure with our Travel Companion Chatbot, offering personalized travel advice and itinerary suggestions.">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f8fa;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #root {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #ffffff;
+      }
+
+      h1 {
+        text-align: center;
+        color: #3B82F6;
+        font-size: 2em;
+        margin-bottom: 10px;
+      }
+
+      p {
+        text-align: center;
+        font-size: 1.2em;
+        margin-top: 0;
+      }
+
+      .footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 0.9em;
+        color: #666;
+      }
+
+      .footer a {
+        color: #3B82F6;
+        text-decoration: none;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <h1>Welcome to Your Travel Companion</h1>
+      <p>Start exploring destinations and receive personalized travel advice!</p>
+      <div class="footer">
+        <p>Powered by <a href="https://abowfzl.com" target="_blank">Abolfazl Moslemian</a></p>
+      </div>
+    </div>
     <script type="module" src="src/use-case-selector/main.tsx"></script>
   </body>
 </html>
