@@ -45,6 +45,7 @@ For detailed API documentation and to explore the available endpoints interactiv
 
 2. **Set up environment variables**:
    - Copy `.env.example` to `.env` in the `ui` directory and fill in the necessary values.
+   - Copy `.env.example` to `.env` in the root of project and fill in the necessary values.
 
 3. **Build and run the services**:
    ```bash
