@@ -391,7 +391,7 @@ return (
         <option value="gpt4all">GPT4All</option>
       </select>
     </header>
-    <div className="flex flex-1 flex-col items-center justify-between w-full max-w-xl mx-auto overflow-hidden">
+    <div className="flex flex-1 flex-col items-center justify-between w-full max-w-screen-xl mx-auto overflow-hidden p-6">
       {!serverAvailable && (
         <div className="text-center text-red-600 dark:text-red-400">
           Server is unavailable, please reload the page to try again.
@@ -409,8 +409,8 @@ return (
         apiKey={apiKey}
       />
       {showContent && readyState === ReadyState.OPEN && (
-        <div className="flex flex-col flex-1 w-full max-w-xl overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col flex-1 w-full max-w-screen-xl overflow-hidden">
+          <div className="flex-1 overflow-y-auto max-w-full">
             <ChatContainer
               chatMessages={chatMessages}
               loading={conversationState === 'waiting'}

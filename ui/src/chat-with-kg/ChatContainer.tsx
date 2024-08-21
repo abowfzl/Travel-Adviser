@@ -29,7 +29,7 @@ function ChatContainer(props: ChatContainerProps) {
   }, [chatMessages]);
 
   return (
-    <div className="relative flex flex-col w-full min-w-[320px] max-w-full overflow-y-auto rounded-lg shadow-lg bg-light-bg dark:bg-dark-bg transition-colors duration-300 p-6">
+    <div className="relative flex flex-col w-full min-w-[320px] max-w-full overflow-y-auto rounded-lg shadow-lg bg-light-bg dark:bg-dark-bg transition-colors duration-300 p-6 md:p-8 lg:p-10">
       <div className="flex flex-col w-full max-w-4xl mx-auto space-y-4">
         {chatMessages.length > 0 ? (
           chatMessages.map((chatMessage) => (
