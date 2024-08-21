@@ -189,17 +189,18 @@ async def generate_session_id():
     return {'session_id': session.generate_session_id()}
 
 
-@app.post("/similars")
-async def get_similars(payload: Payload):
-    embedder = create_embedder(payload.model_name)
-
-    similarity = Neo4jSimilarity(
-        database=neo4j_connection,
-        embedder=embedder
-    )
-    similars = await similarity.run_async(question=payload.question, session_id=payload.session_id)
-
-    return {'similars': similars}
+# @app.post("/similars")
+# async def get_similars(payload: Payload):
+#     embedder = create_embedder(payload.model_name)
+#
+#     similarity = Neo4jSimilarity(
+#         database=neo4j_connection,
+#         embedder=embedder,
+#         llm=model
+#     )
+#     similars = await similarity.run_async(question=payload.question, session_id=payload.session_id)
+#
+#     return {'similars': similars}
 
 
 @app.get("/chat_history")

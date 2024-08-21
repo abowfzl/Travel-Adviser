@@ -40,7 +40,8 @@ class ChatOpenAIChat(BaseLLM):
             question: str,
             session_id: str,
             similars,
-            prompt: ChatPromptTemplate
+            prompt: ChatPromptTemplate,
+            send_response: bool = True
     ) -> [str]:
 
         await self.websocket.send_json({"type": "debug", "detail": f"created prompt: {prompt}"})
@@ -71,7 +72,8 @@ class ChatOpenAIChat(BaseLLM):
             }
         ):
             response = {"type": "stream", "output": chunk}
-            await self.websocket.send_json(response)
+            if send_response:
+                await self.websocket.send_json(response)
 
             tokens.append(chunk)
 

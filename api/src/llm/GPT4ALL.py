@@ -74,7 +74,8 @@ class Gpt4AllChat(BaseLLM):
             question: str,
             session_id: str,
             similars,
-            prompt: ChatPromptTemplate
+            prompt: ChatPromptTemplate,
+            send_response: bool = True
     ) -> [str]:
 
         await self.websocket.send_json({"type": "debug", "detail": f"created prompt: {prompt}"})
