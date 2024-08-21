@@ -74,7 +74,9 @@ class Neo4jSimilarity(BaseComponent):
 
         retrieved_items = self.database.get_attractions(city_names=city_names)
 
-        return contents
+        contents = format_entries(retrieved_items)
+
+        return contents[:stay_duration * 2]
 
     def run(self, question: str, session_id: str, similars=None) -> Any:
         pass

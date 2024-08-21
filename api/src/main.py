@@ -127,7 +127,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             similarity = Neo4jSimilarity(
                 database=neo4j_connection,
-                embedder=embedder
+                embedder=embedder,
+                llm=model
             )
 
             if data["type"] == "question":
