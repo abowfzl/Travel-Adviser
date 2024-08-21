@@ -122,8 +122,6 @@ return (
 }
 
 function ChatMessageTail({ side }: { side: "left" | "right" }) {
-  const tailColor = side === "left" ? "fill-gray-200 dark:fill-gray-800" : "fill-blue-500 dark:bg-blue-600";
-
   return (
     <div
       className={`absolute bottom-0 ${side === "left" ? "left-0" : "right-0"} translate-y-1/2`}
@@ -133,7 +131,7 @@ function ChatMessageTail({ side }: { side: "left" | "right" }) {
         viewBox="0 0 10 10"
         width="100%"
         height="100%"
-        className={`fill-current ${side === "left" ? "text-gray-200 dark:text-gray-800" : "text-blue-500"}`}
+        className={`fill-current ${side === "left" ? "text-gray-100 dark:text-gray-800" : "text-blue-500 dark:bg-blue-600"}`}
         style={{ transform: side === "right" ? "rotate(180deg)" : "none" }}
         xmlns="http://www.w3.org/2000/svg"
       >
