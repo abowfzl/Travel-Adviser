@@ -1,8 +1,7 @@
 from typing import Any, Dict, List, Optional
+from Utils.geospatial_square import calculate_square
 
 from neo4j import GraphDatabase, exceptions
-from neo4j_genai.retrievers import VectorRetriever
-from neo4j_genai.types import RetrieverResult
 
 node_properties_query = """
 CALL apoc.meta.data()
@@ -90,7 +89,6 @@ class Neo4jDatabase:
                     return result
                 else:
                     result = session.run(cypher_query, params)
-                    # Limit to at most 10 results
                     return [r.data() for r in result]
 
             # Catch Cypher syntax errors
@@ -132,10 +130,44 @@ class Neo4jDatabase:
         )
         return data[0]["output"]
 
-    def semantic_search(self, question_embedding) -> RetrieverResult:
-        retriever = VectorRetriever(self._driver, "attractionEmbed")
-        result = retriever.search(query_vector=question_embedding, top_k=7)
-        return result
+    def get_attractions(self, city_names: [str]):
+
+        data = self.query(f"""
+             MATCH (n:Attraction)
+             WHERE n.city_name IN {city_names}
+             RETURN n.city_name, n.name, n.location, n.text, n.title, n.url
+             Limit 100
+        """)
+
+        return data
+
+    def get_city(self, city_name: str):
+        data = self.query(
+            f"""
+            MATCH (n:City) WHERE n.Name = "{city_name}" RETURN n LIMIT 1;
+            """
+        )
+        return data[0]['n']
+
+    def find_nearest_cities(self, city_name: str):
+        city = self.get_city(city_name)
+        longitude = city['long']
+        latitude = city['lat']
+        square_corners = calculate_square(latitude, longitude, distance_km=30)
+
+        data = self.query(
+            f"""
+            MATCH (n:City) WHERE 
+            
+            n.lat > {square_corners['min_lat']} and 
+            n.lat < {square_corners['max_lat']} and 
+            n.long > {square_corners['min_lon']} and 
+            n.long < {square_corners['max_lon']} 
+            
+            RETURN n LIMIT 10;
+            """
+        )
+        return data
 
     def __del__(self) -> None:
         if self._driver:
