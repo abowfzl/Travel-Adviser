@@ -40,6 +40,9 @@ training_data = [
     ("چگونه می‌توانم یک برنامه سفر برای تعطیلات داشته باشم؟", "plan_trip"),
     ("بهترین مکان‌ها برای دیدن در دو روز چیست؟", "plan_trip"),
     ("برای یک هفته در تهران چه برنامه‌ای دارید؟", "plan_trip"),
+    ("برنامه سفر یک روزه به اصفهان", "plan_trip"),
+    ("چگونه یک سفر خوب برنامه‌ریزی کنم؟", "plan_trip"),
+    ("پیشنهاد برای یک سفر دو روزه به شیراز", "plan_trip"),
     ("سلام", "greeting"),
     ("خداحافظ", "farewell"),
     ("متشکرم", "thanks"),
@@ -67,7 +70,7 @@ pipeline.fit(training_texts, training_labels)
 attraction_keywords = ["جاهای دیدنی", "جاذبه‌ها", "جاذبه", "مکان‌های دیدنی", "رستوران", "بازار", "موزه", "هتل", "پارک", "باغ", "مراکز خرید"]
 
 
-def is_attraction_query(user_input):
+def is_travel_related_query(user_input):
     for keyword in attraction_keywords:
         if keyword in user_input:
             return True
@@ -81,7 +84,7 @@ def is_attraction_query(user_input):
     if max(proba[0]) < dynamic_threshold:
         return False
 
-    if intent == "attraction_query":
+    if intent in ["attraction_query", "plan_trip"]:
         return True
 
     return False

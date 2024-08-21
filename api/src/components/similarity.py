@@ -9,7 +9,7 @@ from embedding.base_embedding import BaseEmbedding
 from wrapper.neo4j_wrapper import Neo4jDatabase
 from Utils.data_formatter import format_entries
 
-from .classifier import is_attraction_query
+from .classifier import is_travel_related_query
 
 
 def validate_user_trip_information(city_name: str, stay_duration: str) -> (int, str):
@@ -56,8 +56,8 @@ class Neo4jSimilarity(BaseComponent):
 
     async def run_async(self, question: str, session_id: str, similars=None) -> Any:
 
-        # if is_attraction_query(question) is False:
-        #     return []
+        if is_travel_related_query(question) is False:
+            return []
 
         stay_duration, city_name = await self.get_user_trip_information(session_id)
 
