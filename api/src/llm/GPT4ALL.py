@@ -107,4 +107,7 @@ class Gpt4AllChat(BaseLLM):
 
         results = self.handler.copy_token()
         self.handler.clear_tokens()
-        return results
+
+        final_response = self.reconstruct_streaming_response(results)
+
+        return final_response

@@ -18,3 +18,8 @@ class BaseLLM(ABC):
             prompt
     ) -> List[Any]:
         """Comment"""
+
+    def reconstruct_streaming_response(self, fragments: list) -> str:
+        combined_response = ''.join(fragments).strip()
+
+        return combined_response

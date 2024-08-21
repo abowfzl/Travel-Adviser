@@ -32,7 +32,6 @@ class ChatOpenAIChat(BaseLLM):
     ) -> None:
         self.websocket = websocket
         self.model = ChatOpenAI(openai_api_key=os.getenv('OPENAPI_APIKEY'),
-                                #openai_api_base=os.getenv('OPENAPI_BASEURL'),
                                 streaming=True)
         self.model_name = model_name
 
@@ -76,4 +75,6 @@ class ChatOpenAIChat(BaseLLM):
 
             tokens.append(chunk)
 
-        return tokens
+        final_response = self.reconstruct_streaming_response(tokens)
+
+        return final_response
