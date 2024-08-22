@@ -147,7 +147,7 @@ class Neo4jDatabase:
             MATCH (n:City) WHERE n.Name = "{city_name}" RETURN n LIMIT 1;
             """
         )
-        if data is []:
+        if not data:
             return None
         return data[0]['n']
 

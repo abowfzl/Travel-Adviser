@@ -50,7 +50,7 @@ class Neo4jSimilarity(BaseComponent):
         prompt = create_prompt()
         city_name_question = "بر اساس آخرین مکالمه، آخرین مقصد مورد نظر کاربر کجاست؟ فقط نام آخرین شهر را بنویس. اگر مطمئن نیستی یا نمی‌دانی، فقط 'نمیدانم' بنویس."
         stay_duration_question = "بر اساس آخرین مکالمه، کاربر چند روز قصد دارد سفر کند؟ در جواب فقط و فقط آخرین عدد اعلام شده ریاضی را به عدد بده، مثل 2 یا 3. اگر مطمئن نیستی یا نمی‌دانی، فقط 'نمیدانم' بنویس."
-        mentioned_city_name_question = f"در متن زیر که سوال کاربر است، اگر تنها نام یک شهر ذکر شده باشد، فقط نام آن شهر را بنویس. اگر بیش از یک شهر ذکر شده یا هیچ شهری ذکر نشده، یا اگر مطمئن نیستی، کلمه 'نمیدانم' را بنویس. پاسخ باید فقط یک کلمه باشد.سوال: {question}"
+        mentioned_city_name_question = f"در متن زیر که متن کاربر است، اگر تنها نام یک شهر ذکر شده باشد، فقط نام آن شهر را بنویس. اگر بیش از یک شهر ذکر شده یا هیچ شهری ذکر نشده، یا اگر مطمئن نیستی، کلمه 'نمیدانم' را بنویس.متن: {question}"
 
         city_name = await self.llm.generate_streaming(city_name_question, session_id, None, prompt, False)
         stay_duration = await self.llm.generate_streaming(stay_duration_question, session_id, None, prompt, False)
@@ -77,9 +77,9 @@ class Neo4jSimilarity(BaseComponent):
 
         nearest_cities = self.database.find_nearest_cities(city_name)
 
-        if nearest_cities is []:
+        if not nearest_cities:
             await self.llm.websocket.send_json(
-                {"type": "debug", "detail": f"city not found in db: {city_name}"})
+                {"type": "debug", "detail": f"city {city_name} not found in db"})
             return []
 
         city_names = [city['n']['Name'] for city in nearest_cities]
