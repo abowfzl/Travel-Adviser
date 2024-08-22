@@ -76,6 +76,12 @@ class Neo4jSimilarity(BaseComponent):
         await self.llm.websocket.send_json({"type": "debug", "detail": f"recognized city: {city_name}, stay_duration: {stay_duration}"})
 
         nearest_cities = self.database.find_nearest_cities(city_name)
+
+        if nearest_cities is []:
+            await self.llm.websocket.send_json(
+                {"type": "debug", "detail": f"city not found in db: {city_name}"})
+            return []
+
         city_names = [city['n']['Name'] for city in nearest_cities]
 
         # question_embedding = await self.embedder.embed_query(question)

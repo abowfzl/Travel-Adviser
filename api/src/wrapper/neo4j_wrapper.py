@@ -147,10 +147,15 @@ class Neo4jDatabase:
             MATCH (n:City) WHERE n.Name = "{city_name}" RETURN n LIMIT 1;
             """
         )
+        if data is []:
+            return None
         return data[0]['n']
 
     def find_nearest_cities(self, city_name: str):
         city = self.get_city(city_name)
+        if city is None:
+            return []
+
         longitude = city['long']
         latitude = city['lat']
         square_corners = calculate_square(latitude, longitude, distance_km=30)
