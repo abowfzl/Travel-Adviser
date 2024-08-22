@@ -41,7 +41,7 @@ function ChatMessage({ chatMessage }: ChatMessageProps) {
     ? "bg-gray-100 text-black dark:bg-gray-800 dark:text-white"
     : "bg-blue-500 text-white dark:bg-blue-600";
 
-  const messageBubbleClass = `min-w-0 max-w-lg px-4 py-3 rounded-xl shadow-md break-words ${backgroundColorClass} ${
+  const messageBubbleClass = `min-w-0 px-4 py-3 rounded-xl shadow-md break-words ${backgroundColorClass} ${
     isBot ? "rounded-br-xl" : "rounded-bl-xl"
   }`;
 
