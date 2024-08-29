@@ -10,6 +10,7 @@ from langchain_core.callbacks import AsyncCallbackHandler
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
+from wrapper.no_save_neo4j_chat_history_wrapper import NoSaveNeo4jChatMessageHistory
 from .basellm import BaseLLM
 
 
@@ -21,8 +22,21 @@ graph = Neo4jGraph(
 )
 
 
-def get_session_history(session_id):
+def get_session_history_method(save_conversation):
+    if save_conversation:
+        return get_save_session_history
+    else:
+        return get_no_save_session_history
+
+
+def get_save_session_history(session_id):
     return Neo4jChatMessageHistory(session_id=session_id, graph=graph)
+
+
+def get_no_save_session_history(session_id):
+    return NoSaveNeo4jChatMessageHistory(session_id=session_id, graph=graph)
+
+
 
 
 class CustomAsyncCallbackHandler(AsyncCallbackHandler):
@@ -75,7 +89,9 @@ class Gpt4AllChat(BaseLLM):
             session_id: str,
             similars,
             prompt: ChatPromptTemplate,
-            send_response: bool = True
+            send_response: bool = True,
+            use_history: bool = True,
+            save_conversation: bool = True
     ) -> [str]:
 
         await self.websocket.send_json({"type": "debug", "detail": f"created prompt: {prompt}"})
@@ -85,26 +101,29 @@ class Gpt4AllChat(BaseLLM):
 
         await self.websocket.send_json({"type": "debug", "detail": "chain created and model is going to generate"})
 
-        chat_with_message_history = RunnableWithMessageHistory(
-            chain,
-            get_session_history=get_session_history,
-            input_messages_key="question",
-            history_messages_key="chat_history",
-        )
+        session_history_method = get_session_history_method(save_conversation)
 
-        await chat_with_message_history.ainvoke(
-            {
-                "question": question,
-                "similars": similars,
-            },
-            config={
-                "configurable": {
-                    "session_id": session_id
-                    },
-            }
-        )
+        if use_history:
+            chat_with_message_history = RunnableWithMessageHistory(
+                chain,
+                get_session_history=session_history_method,
+                input_messages_key="question",
+                history_messages_key="chat_history",
+            )
 
-        # await chain.ainvoke({"question": question, "similars": similars})
+            await chat_with_message_history.ainvoke(
+                {
+                    "question": question,
+                    "similars": similars,
+                },
+                config={
+                    "configurable": {
+                        "session_id": session_id
+                        },
+                }
+            )
+        else:
+            await chain.ainvoke({"question": question, "similars": similars})
 
         results = self.handler.copy_token()
         self.handler.clear_tokens()

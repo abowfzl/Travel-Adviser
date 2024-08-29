@@ -16,7 +16,9 @@ class BaseLLM(ABC):
             session_id,
             similars,
             prompt,
-            send_response: bool = True
+            send_response: bool = True,
+            use_history: bool = True,
+            save_conversation: bool = True
     ) -> List[Any]:
         """Comment"""
 

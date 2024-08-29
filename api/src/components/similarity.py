@@ -29,12 +29,18 @@ def validate_user_trip_information(city_name: str, mentioned_city_in_question: s
     return stay_duration, city_name
 
 
-def create_prompt():
-    messages = [
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("system", "{question}")
+def create_prompt(use_history: bool):
+    if use_history:
+        messages = [
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("system", "{question}")
 
-    ]
+        ]
+    else:
+        messages = [
+            ("system", "{question}")
+        ]
+
     prompt = ChatPromptTemplate.from_messages(messages)
 
     return prompt
@@ -46,15 +52,27 @@ class Neo4jSimilarity(BaseComponent):
         self.embedder = embedder
         self.llm = llm
 
-    async def get_user_trip_information(self, question: str, session_id: str,) -> (int, str):
-        prompt = create_prompt()
+    async def get_user_trip_information(self, question: str, session_id: str, ) -> (int, str):
+        use_history = True
+        # Questions that need chat history
         city_name_question = "بر اساس آخرین مکالمه، آخرین مقصد مورد نظر کاربر کجاست؟ فقط نام آخرین شهر را بنویس. اگر مطمئن نیستی یا نمی‌دانی، فقط 'نمیدانم' بنویس."
         stay_duration_question = "بر اساس آخرین مکالمه، کاربر چند روز قصد دارد سفر کند؟ در جواب فقط و فقط آخرین عدد اعلام شده ریاضی را به عدد بده، مثل 2 یا 3. اگر مطمئن نیستی یا نمی‌دانی، فقط 'نمیدانم' بنویس."
+
+        # Question that does not need chat history
         mentioned_city_name_question = f"در متن زیر که متن کاربر است، اگر تنها نام یک شهر ذکر شده باشد، فقط نام آن شهر را بنویس. اگر بیش از یک شهر ذکر شده یا هیچ شهری ذکر نشده، یا اگر مطمئن نیستی، کلمه 'نمیدانم' را بنویس.متن: {question}"
 
-        city_name = await self.llm.generate_streaming(city_name_question, session_id, None, prompt, False)
-        stay_duration = await self.llm.generate_streaming(stay_duration_question, session_id, None, prompt, False)
-        mentioned_city_in_question = await self.llm.generate_streaming(mentioned_city_name_question, session_id, None, prompt, False)
+        prompt = create_prompt(use_history)
+        # Generate responses with history
+        city_name = await self.llm.generate_streaming(city_name_question, session_id, None, prompt, False,
+                                                      use_history=use_history, save_conversation=False)
+        stay_duration = await self.llm.generate_streaming(stay_duration_question, session_id, None, prompt, False,
+                                                          use_history=use_history, save_conversation=False)
+
+        use_history = False
+        prompt = create_prompt(use_history)
+        # Generate response without history
+        mentioned_city_in_question = await self.llm.generate_streaming(mentioned_city_name_question, session_id, None,
+                                                                       prompt, use_history, use_history=False)
 
         stay_duration, city_name = validate_user_trip_information(city_name, mentioned_city_in_question, stay_duration)
 
