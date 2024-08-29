@@ -1,4 +1,5 @@
 from typing import Any
+import random
 
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 from langchain_core.prompts.chat import MessagesPlaceholder
@@ -108,7 +109,9 @@ class Neo4jSimilarity(BaseComponent):
 
         contents = format_entries(retrieved_items)
 
-        return contents[:stay_duration * 2]
+        random_contents = random.sample(contents, min(len(contents), stay_duration * 2))
+
+        return random_contents
 
     def run(self, question: str, session_id: str, similars=None) -> Any:
         pass
